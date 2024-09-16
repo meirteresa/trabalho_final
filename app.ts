@@ -7,7 +7,6 @@ const moment = require('moment-timezone');
 const promptSync = require('prompt-sync');
 class App {
     private _rede: RedeSocial;
-    // private CAMINHO_ARQUIVO = './contas.txt'
     private _input: any; 
 
     constructor() {

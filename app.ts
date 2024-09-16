@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { RedeSocial } from './redesocial';
 import { Usuario, Publicacao, PublicacaoAvancada, Interacao, TipoInteracao } from './classes';
-import { AplicacaoError, ValorInvalidoError, UsuarioJaCadastradoError } from './excecoes';
+import { AplicacaoError, ValorInvalidoError, UsuarioJaCadastradoError, UsuarioNaoEncontradoError } from './excecoes';
 const moment = require('moment-timezone');
 
 const promptSync = require('prompt-sync');
@@ -148,6 +148,9 @@ class App {
         }
 
         let usuario: Usuario = this._rede.consultarUsuario(email);
+        if (usuario == null) {
+            throw new UsuarioNaoEncontradoError(`Usuário de email ${email} não encontrado!`);
+        }
 
         let conteudo: string = this._input('    O que você está pensando? ');
         if (conteudo.length > 100) {
@@ -197,6 +200,11 @@ class App {
             throw new ValorInvalidoError("Email inválido.");
         }
 
+        let usuario: Usuario = this._rede.consultarUsuario(email);
+        if (usuario == null) {
+            throw new UsuarioNaoEncontradoError(`Usuário de email ${email} não encontrado!`);
+        }
+
         this.listarAvancadas();
         console.log("\n\n");
         let id: number = this._input('    Id da publicação que deseja interagir: ');
@@ -220,10 +228,6 @@ class App {
             throw new ValorInvalidoError("Reação inválida.");
         }
 
-        let usuario: Usuario = this._rede.consultarUsuario(email);
-        if((publicacao as PublicacaoAvancada).usuario.email == email){
-
-        }
         let interacao: Interacao;
 
         switch (tipo) {
@@ -254,6 +258,10 @@ class App {
         console.log("\n┎--------------------------------------------------┒ \
 \n\n    Excluir Post\n");
         let email: string = this._input('    Digite o email: ');
+        let usuario: Usuario = this._rede.consultarUsuario(email);
+        if (usuario == null) {
+            throw new UsuarioNaoEncontradoError(`Usuário de email ${email} não encontrado!`);
+        }
         this.listarTodas(email);
         console.log("\n");
         let id: number = this._input('    Digite o id do post a ser excluido: ');
@@ -299,7 +307,12 @@ class App {
         let email: string = this._input('    Digite o email: ');
         if (email.trim() === "" || !this.isValidEmail(email)) {
             throw new ValorInvalidoError("Email inválido.");
-        }   
+        }
+        let usuario: Usuario = this._rede.consultarUsuario(email);
+    
+        if (usuario == null) {
+            throw new UsuarioNaoEncontradoError(`Usuário de email ${email} não encontrado!`);
+        }
         this.listarTodas(email);
         console.log("\n┖--------------------------------------------------┚\n");
         this.imprimirPressionarEnter();

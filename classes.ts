@@ -1,4 +1,3 @@
-
 import { UsuarioNaoEncontradoError, PublicacaoNaoEncontradaError, ValorInvalidoError, UsuarioJaCadastradoError, InteracaoInvalidaError } from './excecoes';
 const moment = require('moment-timezone');
 

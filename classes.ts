@@ -1,3 +1,4 @@
+
 import { UsuarioNaoEncontradoError, PublicacaoNaoEncontradaError, ValorInvalidoError, UsuarioJaCadastradoError, InteracaoInvalidaError } from './excecoes';
 const moment = require('moment-timezone');
 
@@ -498,15 +499,40 @@ class RedeSocial {
 
     editarPublicacao(publicacao: Publicacao, conteudo: string): void{
         publicacao.conteudo = conteudo;
+
+        this.exibirPublicacao(publicacao.id);
     }
 
-    desativarAtivar(usuario: Usuario, opcao: string): void{
+    desativarAtivar(email: string, opcao: string): void{
+        if (email.trim() === "" || !this.isValidEmail(email)) {
+            throw new ValorInvalidoError("Email inválido.");
+        }
+
+        let userProcurado!: Usuario;
+
+        for (let i: number = 0; i < this._colecaoUsuarios.length; i++) {
+            if (this._colecaoUsuarios[i].email == email) {
+                userProcurado = this._colecaoUsuarios[i];
+                break;
+            }
+        }
+
+        if (userProcurado == null) {
+            throw new UsuarioNaoEncontradoError(`Usuário ${email} não encontrado!`);
+        }
+
         if(opcao == "1"){
-            usuario.tipo = "desativado";
+            if(userProcurado.tipo == "desativado"){
+                throw new ValorInvalidoError("Conta já está desativada.");
+            }
+            userProcurado.tipo = "desativado";
             console.log("\x1b[32m\n\n\n    Conta desativada com sucesso!\x1b[0m");
         }
         else{
-            usuario.tipo = "ativo";
+            if(userProcurado.tipo == "ativo"){
+                throw new ValorInvalidoError("Conta já está ativa.");
+            }
+            userProcurado.tipo = "ativo";
             console.log("\x1b[32m\n\n\n    Conta reativada com sucesso!\x1b[0m");
         }
     }

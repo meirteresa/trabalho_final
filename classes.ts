@@ -1,3 +1,4 @@
+
 import { UsuarioNaoEncontradoError, PublicacaoNaoEncontradaError, ValorInvalidoError, UsuarioJaCadastradoError, InteracaoInvalidaError } from './excecoes';
 const moment = require('moment-timezone');
 
@@ -6,12 +7,14 @@ class Usuario {
     private _email: string;
     private _apelido: string;
     private _documento: string;
+    private _tipo: string;
 
-    constructor(email: string, apelido: string, documento: string){
+    constructor(email: string, apelido: string, documento: string, tipo: string){
         this._id = this.gerarId();
         this._email = email;
         this._apelido = apelido;
         this._documento = documento;
+        this._tipo = tipo;
     }
 
     get email(): string{
@@ -33,6 +36,14 @@ class Usuario {
     set id(new_id: number){
         this._id = new_id;
     }
+
+    get tipo(): string{
+        return this._tipo;
+    }
+
+    set tipo(new_tipo: string){
+        this._tipo = new_tipo;
+    }    
 
     gerarId(): number{
         let numeroId: number = Math.floor(10000 + Math.random() * 90000);
@@ -67,6 +78,10 @@ class Publicacao {
 
     get conteudo(): string{
         return this._conteudo;
+    }
+
+    set conteudo(new_conteudo: string){
+        this._conteudo = new_conteudo;
     }
 
     get dataHora(): Date{
@@ -169,7 +184,7 @@ class RedeSocial {
             }
         }
         
-        let usuario: Usuario = new Usuario(email, apelido, documento);
+        let usuario: Usuario = new Usuario(email, apelido, documento, "ativo");
 
         this.inserirUsuario(usuario);
         this.exibirContaUsuario(email);
@@ -224,7 +239,7 @@ class RedeSocial {
             }
         }
 
-        if (userProcurado == null) {
+        if (userProcurado == null || userProcurado.tipo == "desativado") {
             throw new UsuarioNaoEncontradoError(`Usuário ${email} não encontrado!`);
         }
 
@@ -258,7 +273,7 @@ class RedeSocial {
             }
         }
 
-        if (publicacaoProcurada == null) {
+        if (publicacaoProcurada == null || publicacaoProcurada.usuario.tipo == "desativado") {
             throw new PublicacaoNaoEncontradaError(`Publicação de id ${id} não encontrada!`);
         }
 
@@ -276,45 +291,46 @@ class RedeSocial {
     }
 
     listarPublicacoes(): void{
+        let contador = 0;
+
         for(let i: number = this._colecaoPublicacoes.length - 1; i >= 0; i--){
 
             let publicacao: Publicacao = this._colecaoPublicacoes[i];
 
-            if(publicacao instanceof PublicacaoAvancada){
-                console.log(`\n\n\n    (${publicacao.id}) - @${publicacao.usuario.apelido} em ${publicacao.dataHora}:\n`);
-                this.mostrarConteudo(publicacao);
-                console.log();
-                this.mostrarInteracoes(publicacao);
+            if(publicacao.usuario.tipo == "ativo"){
+                contador++;
+                if(publicacao instanceof PublicacaoAvancada){
+                    console.log(`\n\n\n    (${publicacao.id}) - @${publicacao.usuario.apelido} em ${publicacao.dataHora}:\n`);
+                    this.mostrarConteudo(publicacao);
+                    console.log();
+                    this.mostrarInteracoes(publicacao);
+                }
+                else{
+                    console.log(`\n\n\n    (${publicacao.id}) - @${publicacao.usuario.apelido} em ${publicacao.dataHora}:\n`);
+                    this.mostrarConteudo(publicacao);
+                }
             }
-            else{
-                console.log(`\n\n\n    (${publicacao.id}) - @${publicacao.usuario.apelido} em ${publicacao.dataHora}:\n`);
-                this.mostrarConteudo(publicacao);
-            }
+        }
+
+        if(contador == 0){
+            throw new PublicacaoNaoEncontradaError("Feed vazio");
         }
     }
     
     excluirPostId(id: number): void {   
         let indice: number = this._colecaoPublicacoes.findIndex(publicacao => publicacao.id == id);
-        
-        if (indice == -1) {
-            throw new PublicacaoNaoEncontradaError(`Post ${id} não encontrado!`);
-        }
 
         this._colecaoPublicacoes.splice(indice, 1);
     }
     
     
-    excluirContaEmail(email: string): void {
-        let indice: number = this.colecaoUsuarios.findIndex(usuario => usuario.email === email);
-        
-        if (indice == -1) {
-            throw new UsuarioNaoEncontradoError(`Conta ${email} não encontrada!`);
-        }
+    excluirContaEmail(usuario: Usuario): void {
+        let indice: number = this._colecaoUsuarios.findIndex(usuario => usuario.email === usuario.email);
 
-        this._colecaoPublicacoes = this._colecaoPublicacoes.filter(publicacao => publicacao.usuario.email !== email);
+        this._colecaoPublicacoes = this._colecaoPublicacoes.filter(publicacao => publicacao.usuario.email !== usuario.email);
         this._colecaoUsuarios.splice(indice, 1);
         
-        console.log(`\x1b[32m\n\n    Conta ${email} excluída com sucesso!\x1b[0m`);
+        console.log(`\x1b[32m\n\n    Conta ${usuario.email} excluída com sucesso!\x1b[0m`);
 
     }
     
@@ -327,12 +343,14 @@ class RedeSocial {
         let interacoes: Interacao[] = [];
 
         for(let i: number = this.colecaoPublicacoes.length - 1; i >= 0; i--){  
-            if(usuario.email === this.colecaoPublicacoes[i].usuario.email){
-                let publicacao: Publicacao = this.colecaoPublicacoes[i];
-                
-                if(this.colecaoPublicacoes[i] instanceof PublicacaoAvancada){
-                    let interacoesAvancadas = (publicacao as PublicacaoAvancada).interacoes;
-                    interacoes.push(...interacoesAvancadas);
+            if(this._colecaoPublicacoes[i].usuario.tipo == "ativo"){
+                if(usuario.email === this.colecaoPublicacoes[i].usuario.email){
+                    let publicacao: Publicacao = this.colecaoPublicacoes[i];
+                    
+                    if(this.colecaoPublicacoes[i] instanceof PublicacaoAvancada){
+                        let interacoesAvancadas = (publicacao as PublicacaoAvancada).interacoes;
+                        interacoes.push(...interacoesAvancadas);
+                    }
                 }
             }
         }
@@ -348,20 +366,28 @@ class RedeSocial {
     }
 
     listarTodas(usuario: Usuario) {
+        let contador = 0;
         for(let i: number = this.colecaoPublicacoes.length - 1; i >= 0; i--){
             if(usuario.email === this.colecaoPublicacoes[i].usuario.email){
                 let publicacao: Publicacao = this.colecaoPublicacoes[i];
-                if(this.colecaoPublicacoes[i] instanceof PublicacaoAvancada){
-                    console.log(`\n\n\n    (${publicacao.id}) - @${publicacao.usuario.apelido} em ${publicacao.dataHora}:\n`);
-                    this.mostrarConteudo(publicacao);
-                    console.log();
-                    this.mostrarInteracoes(publicacao as PublicacaoAvancada);
-                }
-                else{
-                    console.log(`\n\n\n    (${publicacao.id}) - @${publicacao.usuario.apelido} em ${publicacao.dataHora}:\n`);
-                    this.mostrarConteudo(publicacao);
+                if(publicacao.usuario.tipo == "ativo"){
+                    contador++;
+                    if(this.colecaoPublicacoes[i] instanceof PublicacaoAvancada){
+                        console.log(`\n\n\n    (${publicacao.id}) - @${publicacao.usuario.apelido} em ${publicacao.dataHora}:\n`);
+                        this.mostrarConteudo(publicacao);
+                        console.log();
+                        this.mostrarInteracoes(publicacao as PublicacaoAvancada);
+                    }
+                    else{
+                        console.log(`\n\n\n    (${publicacao.id}) - @${publicacao.usuario.apelido} em ${publicacao.dataHora}:\n`);
+                        this.mostrarConteudo(publicacao);
+                    }
                 }
             }
+        }
+
+        if(contador === 0){
+            throw new PublicacaoNaoEncontradaError("Essa conta não possui posts.");
         }
         console.log("\n");
     }
@@ -369,7 +395,7 @@ class RedeSocial {
     postarPublicacao(opcaoPost: string, usuario: Usuario, conteudo: string):void {
         let publicacao: Publicacao;
         let dataHora = moment().tz("America/Sao_Paulo").format('DD-MM-YYYY, HH:mm');
-
+        
         if (opcaoPost == "1") {
             publicacao = new Publicacao(usuario, conteudo, dataHora);
         }
@@ -470,6 +496,21 @@ class RedeSocial {
     
         console.log(conteudoFormatado); // Mostra o conteúdo formatado
     } 
+
+    editarPublicacao(publicacao: Publicacao, conteudo: string): void{
+        publicacao.conteudo = conteudo;
+    }
+
+    desativarAtivar(usuario: Usuario, opcao: string): void{
+        if(opcao == "1"){
+            usuario.tipo = "desativado";
+            console.log("\x1b[32m\n\n\n    Conta desativada com sucesso!\x1b[0m");
+        }
+        else{
+            usuario.tipo = "ativo";
+            console.log("\x1b[32m\n\n\n    Conta reativada com sucesso!\x1b[0m");
+        }
+    }
 
     get colecaoUsuarios(): Usuario[] {
         return this._colecaoUsuarios;

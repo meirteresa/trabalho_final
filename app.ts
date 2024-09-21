@@ -67,7 +67,7 @@ class App {
                 if (e instanceof AplicacaoError) {
                     console.log(e.message);
                 } else {
-                    console.log(`\x1b[31m\n\n    ${e}\x1b[0m`);
+                    console.log(`\n\n    ${e}`);
                 }
                 this.imprimirPressionarEnter();
             }
@@ -209,6 +209,7 @@ class App {
     }
 
     private feed(){
+        console.clear();
         console.log("\n┎--------------------------------------------------┒ \
 \n\n    # Feed");
 
@@ -270,11 +271,10 @@ class App {
         }
 
         let email: string = this._input('    Digite o seu email: ');
-        let usuario: Usuario = this._rede.consultarUsuario(email);
             
         console.log("\n┖--------------------------------------------------┚\n");
 
-        this._rede.desativarAtivar(usuario, opcao);
+        this._rede.desativarAtivar(email, opcao);
         this.imprimirPressionarEnter();
     }
 

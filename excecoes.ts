@@ -28,6 +28,12 @@ class ValorInvalidoError extends AplicacaoError {
   }
 }
 
+class InteracaoInvalidaError extends AplicacaoError {
+  constructor(message: string) {
+    super(message);
+  }
+}
+
 export { UsuarioNaoEncontradoError, PublicacaoNaoEncontradaError, UsuarioJaCadastradoError,
-         AplicacaoError, ValorInvalidoError
+         AplicacaoError, ValorInvalidoError, InteracaoInvalidaError
  };

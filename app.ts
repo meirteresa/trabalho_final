@@ -20,6 +20,7 @@ class App {
             this.listarOpcoes();
             try {
             op = this._input('    Digite uma opção: ');
+            console.log("\n\n┖---------------------------------------------------------------------┚");
 
             switch (op) {
                 case "1":
@@ -69,15 +70,16 @@ class App {
     }
 
     private listarOpcoes() {
-        console.log('\x1b[35m\n    Bem vindo!\x1b[0m\n');
+        console.log("\n┎---------------------------------------------------------------------┒\n");
+        console.log('\n    Bem vindo!\n');
         console.log('    1 - Abrir Conta          2 - Publicar         3 - Interagir\n' +
             '    4 - Feed                 5 - Excluir Post     6 - Excluir Conta\n' +
             '    7 - Pesquisar Perfil     8 - Notificações     0 - Sair\n\n');
     }
 
     private cadastrar() {
-        console.log("\x1b[35m\n┎--------------------------------------------------┒ \
-\n\n    Abrir conta\n\x1b[0m");
+        console.log("\n┎--------------------------------------------------┒ \
+\n\n    # Abrir conta\n");
 
         let apelido: string = this._input('    Apelido: ');
         if (apelido.trim() === "") {
@@ -93,7 +95,7 @@ class App {
             throw new ValorInvalidoError("Email inválido.");
         }
         
-        console.log("\x1b[1m\n┖--------------------------------------------------┚\n\x1b[0m");
+        console.log("\n┖--------------------------------------------------┚\n");
 
         this._rede.cadastrarUsuario(email, apelido, documento);
         this.imprimirPressionarEnter();
@@ -101,7 +103,7 @@ class App {
 
     private publicar() {
         console.log("\n┎--------------------------------------------------┒ \
-\n\n    Publicar\n");
+\n\n    # Publicar\n");
 
         let opcaoPost: string = this._input('    Informe o tipo (1 - Simples, 2 - Avançada): ');
         if (opcaoPost != "1" && opcaoPost != "2") {
@@ -124,7 +126,7 @@ class App {
 
     private interagir(){
         console.log("\n┎--------------------------------------------------┒ \
-\n\n    Interagir\n");
+\n\n    # Interagir\n");
 
         let email: string = this._input('    Digite seu email: ');
         let usuario: Usuario = this._rede.consultarUsuario(email);
@@ -151,7 +153,7 @@ class App {
 
     private excluirPost(){
         console.log("\n┎--------------------------------------------------┒ \
-\n\n    Excluir Post\n");
+\n\n    # Excluir Post\n");
         let email: string = this._input('    Digite o email: ');
         let usuario: Usuario = this._rede.consultarUsuario(email);
         
@@ -170,7 +172,7 @@ class App {
 
     private excluirConta(){
         console.log("\n┎--------------------------------------------------┒ \
-\n\n    Excluir Conta\n");
+\n\n    # Excluir Conta\n");
 
         let email: string = this._input('    Digite o email da conta a ser excluida: ');
         
@@ -182,7 +184,7 @@ class App {
     
     private pesquisarPerfil(){
         console.log("\n┎--------------------------------------------------┒ \
-\n\n    Pesquisar Perfil\n");
+\n\n    # Pesquisar Perfil\n");
 
         let email: string = this._input('    Digite o email: ');
         
@@ -194,7 +196,7 @@ class App {
 
     private feed(){
         console.log("\n┎--------------------------------------------------┒ \
-\n\n    Feed");
+\n\n    # Feed");
 
         this._rede.listarPublicacoes();
 
@@ -204,7 +206,7 @@ class App {
 
     private notificacoes(){
         console.log("\n┎--------------------------------------------------┒ \
-\n\n    Notificações");
+\n\n    # Notificações");
 
         let email: string = this._input('    Digite o seu email: ');
         let usuario: Usuario = this._rede.consultarUsuario(email);

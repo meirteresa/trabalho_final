@@ -55,7 +55,14 @@ class App {
                     this.imprimirPressionarEnter();
                     this.notificacoes();
                     break;
-                }
+                case "9":
+                    this.imprimirPressionarEnter();
+                    this.editar();
+                    break;
+                case "10":
+                    this.imprimirPressionarEnter();
+                    this.ativacao();
+                }                
             } catch (e) {
                 if (e instanceof AplicacaoError) {
                     console.log(e.message);
@@ -74,7 +81,8 @@ class App {
         console.log('\n    Bem vindo!\n');
         console.log('    1 - Abrir Conta          2 - Publicar         3 - Interagir\n' +
             '    4 - Feed                 5 - Excluir Post     6 - Excluir Conta\n' +
-            '    7 - Pesquisar Perfil     8 - Notificações     0 - Sair\n\n');
+            '    7 - Pesquisar Perfil     8 - Notificações     9 - Editar Post\n' +
+            '    10 - Desativar/Ativar    0 - Sair\n\n');
     }
 
     private cadastrar() {
@@ -161,6 +169,11 @@ class App {
         console.log("\n");
         
         let id: number = this._input('    Digite o id do post a ser excluido: ');
+        let publicacao: Publicacao = this._rede.consultarPublicacao(id);
+
+        if(usuario.id != publicacao.usuario.id){
+            throw new ValorInvalidoError("Você não tem acesso a esse post.");
+        }
         
         console.log("\n┖--------------------------------------------------┚\n");
 
@@ -175,10 +188,11 @@ class App {
 \n\n    # Excluir Conta\n");
 
         let email: string = this._input('    Digite o email da conta a ser excluida: ');
+        let usuario: Usuario = this._rede.consultarUsuario(email);
         
         console.log("\n┖--------------------------------------------------┚\n");
 
-        this._rede.excluirContaEmail(email);
+        this._rede.excluirContaEmail(usuario);
         this.imprimirPressionarEnter();
     }
     
@@ -214,6 +228,53 @@ class App {
         console.log("\n┖--------------------------------------------------┚\n");
 
         this._rede.listarInteracoes(usuario);
+        this.imprimirPressionarEnter();
+    }
+
+    private editar(){
+        console.log("\n┎--------------------------------------------------┒ \
+\n\n    # Editar Post");
+
+        let email: string = this._input('    Digite o seu email: ');
+        let usuario: Usuario = this._rede.consultarUsuario(email);
+
+        this._rede.listarTodas(usuario);
+        console.log("\n");
+        
+        let id: number = this._input('    Digite o id do post a ser editado: ');
+        let publicacao: Publicacao = this._rede.consultarPublicacao(id);
+        if(usuario.id != publicacao.usuario.id){
+            throw new ValorInvalidoError("Você não tem acesso a esse post.");
+        }
+        
+        let conteudo: string = this._input('    O que você está pensando? ');
+        if (conteudo.length > 100) {
+            throw new ValorInvalidoError("Você excedeu o limite de caracteres.");
+        }
+                
+        console.log("\n┖--------------------------------------------------┚\n");
+
+        this._rede.editarPublicacao(publicacao, conteudo);
+        this.imprimirPressionarEnter();
+    }
+
+    private ativacao(){
+        console.log("\n┎--------------------------------------------------┒ \
+\n\n    # Desativar/Ativar");
+
+        console.log(`\n    1 - Desativar  2 - Ativar \n`);
+        let opcao: string = this._input('    >>> ');
+
+        if (opcao != "1" && opcao != "2") {
+            throw new ValorInvalidoError("Opção inválida.");
+        }
+
+        let email: string = this._input('    Digite o seu email: ');
+        let usuario: Usuario = this._rede.consultarUsuario(email);
+            
+        console.log("\n┖--------------------------------------------------┚\n");
+
+        this._rede.desativarAtivar(usuario, opcao);
         this.imprimirPressionarEnter();
     }
 

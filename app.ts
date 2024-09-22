@@ -67,7 +67,7 @@ class App {
                 if (e instanceof AplicacaoError) {
                     console.log(e.message);
                 } else {
-                    console.log(`\n\n    ${e}`);
+                    console.log(`\x1b[31m\n\n    ${e}\x1b[0m`);
                 }
                 this.imprimirPressionarEnter();
             }
@@ -209,7 +209,6 @@ class App {
     }
 
     private feed(){
-        console.clear();
         console.log("\n┎--------------------------------------------------┒ \
 \n\n    # Feed");
 
@@ -269,7 +268,7 @@ class App {
         if (opcao != "1" && opcao != "2") {
             throw new ValorInvalidoError("Opção inválida.");
         }
-
+        console.log("\n");
         let email: string = this._input('    Digite o seu email: ');
             
         console.log("\n┖--------------------------------------------------┚\n");

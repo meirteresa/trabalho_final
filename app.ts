@@ -117,7 +117,7 @@ class App {
         if (opcaoPost != "1" && opcaoPost != "2") {
             throw new ValorInvalidoError("Opção inválida.");
         }
-
+        console.log("\n");
         let email: string = this._input('    Digite o email: ');
         let usuario: Usuario = this._rede.consultarUsuario(email);
 
@@ -141,7 +141,7 @@ class App {
 
         this._rede.listarPublicacoes();
 
-        console.log("\n\n");
+        console.log("\n");
 
         let id: number = this._input('    Id da publicação que deseja interagir: ');
         let publicacao: Publicacao = this._rede.validarTipoPublicacao(id); 
@@ -165,8 +165,7 @@ class App {
         let email: string = this._input('    Digite o email: ');
         let usuario: Usuario = this._rede.consultarUsuario(email);
         
-        this._rede.listarTodas(usuario);
-        console.log("\n");
+        this._rede.listarTodas(email);
         
         let id: number = this._input('    Digite o id do post a ser excluido: ');
         let publicacao: Publicacao = this._rede.consultarPublicacao(id);
@@ -210,7 +209,7 @@ class App {
 
     private feed(){
         console.log("\n┎--------------------------------------------------┒ \
-\n\n    # Feed");
+\n\n    # Feed\n");
 
         this._rede.listarPublicacoes();
 
@@ -220,7 +219,7 @@ class App {
 
     private notificacoes(){
         console.log("\n┎--------------------------------------------------┒ \
-\n\n    # Notificações");
+\n\n    # Notificações\n");
 
         let email: string = this._input('    Digite o seu email: ');
         let usuario: Usuario = this._rede.consultarUsuario(email);
@@ -233,12 +232,12 @@ class App {
 
     private editar(){
         console.log("\n┎--------------------------------------------------┒ \
-\n\n    # Editar Post");
+\n\n    # Editar Post\n");
 
         let email: string = this._input('    Digite o seu email: ');
         let usuario: Usuario = this._rede.consultarUsuario(email);
 
-        this._rede.listarTodas(usuario);
+        this._rede.listarTodas(email);
         console.log("\n");
         
         let id: number = this._input('    Digite o id do post a ser editado: ');

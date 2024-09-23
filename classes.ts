@@ -228,22 +228,23 @@ class RedeSocial {
         if (email.trim() === "" || !this.isValidEmail(email)) {
             throw new ValorInvalidoError("Email inválido.");
         }
-
-        let userProcurado!: Usuario;
-
+    
+        let userProcurado: Usuario | undefined;
+    
         for (let i: number = 0; i < this._colecaoUsuarios.length; i++) {
-            if (this._colecaoUsuarios[i].email == email) {
+            if (this._colecaoUsuarios[i].email === email) {
                 userProcurado = this._colecaoUsuarios[i];
                 break;
             }
         }
-
-        if (userProcurado == null || userProcurado.tipo == "desativado") {
+    
+        if (!userProcurado || userProcurado.tipo === "desativado") {
             throw new UsuarioNaoEncontradoError(`Usuário ${email} não encontrado!`);
         }
-
+    
         return userProcurado;
     }
+    
 
     inserirPublicacao(publicacao: Publicacao): void {
         let idDuplicado = true;
@@ -326,16 +327,17 @@ class RedeSocial {
     excluirContaEmail(usuario: Usuario): void {
         let indice: number = this._colecaoUsuarios.findIndex(usuario => usuario.email === usuario.email);
 
-        this._colecaoPublicacoes = this._colecaoPublicacoes.filter(publicacao => publicacao.usuario.email !== usuario.email);
-        this._colecaoUsuarios.splice(indice, 1);
-        
-        console.log(`\x1b[32m\n\n    Conta ${usuario.email} excluída com sucesso!\x1b[0m`);
-
+        if (indice !== -1) {
+            this._colecaoPublicacoes = this._colecaoPublicacoes.filter(publicacao => publicacao.usuario.email !== usuario.email);
+            this._colecaoUsuarios.splice(indice, 1);
+            
+            console.log(`\x1b[32m\n\n    Conta ${usuario.email} excluída com sucesso!\x1b[0m`);
+        }
     }
     
     pesquisarUsuario(email: string): void{
-        let usuario: Usuario = this.consultarUsuario(email);      
-        this.listarTodas(usuario);
+        let user : Usuario = this.consultarUsuario(email);     
+        this.listarTodas(user.email);
     }
     
     listarInteracoes(usuario: Usuario){
@@ -364,10 +366,10 @@ class RedeSocial {
         }
     }
 
-    listarTodas(usuario: Usuario) {
+    listarTodas(email: string) {
         let contador = 0;
         for(let i: number = this.colecaoPublicacoes.length - 1; i >= 0; i--){
-            if(usuario.email === this.colecaoPublicacoes[i].usuario.email){
+            if(email === this.colecaoPublicacoes[i].usuario.email){
                 let publicacao: Publicacao = this.colecaoPublicacoes[i];
                 if(publicacao.usuario.tipo == "ativo"){
                     contador++;
@@ -388,6 +390,7 @@ class RedeSocial {
         if(contador === 0){
             throw new PublicacaoNaoEncontradaError("Essa conta não possui posts.");
         }
+
         console.log("\n");
     }
 
